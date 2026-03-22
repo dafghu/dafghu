@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="proj.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+    <!-- Для поддержки дополнительных языков, например Python, JavaScript, C++ -->
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-javascript.min.js"></script>
+    <title>примеры программ</title>
+</head>
+<body>
+    <header class="header">
+        <h1><a class="h1a" href="index.html">Программирование дронов</a></h1>
+        <nav><a href="index2.html">Настройка дрона</a> <a href="index3.html">Необходимое программное обеспечение</a> <a href="index4.html">примеры программ</a></nav>
+    </header>
+    <div class='mn'>
+        <div class="osn">
+            <h1>Примеры кода</h1>
+        </div>
+        <div class="osnvj">
+            <h1>Управление дроном с помощью клавиатуры</h1>
+        </div>
+        <div class="code-block">
+            <pre><code class="language-python">
+from pioneer_sdk import Pioneer, Camera
+import cv2
+import numpy as np
+import time
+
+if __name__ == "__main__":
+    pioneer_mini = Pioneer()
+    camera = Camera()
+    min_v = 1300
+    max_v = 1700
+    try:
+        while True:
+            ch_1 = 1500
+            ch_2 = 1500
+            ch_3 = 1500
+            ch_4 = 1500
+            ch_5 = 2000
+            frame = camera.get_frame()
+            if frame is not None:
+                camera_frame = cv2.imdecode(
+                    np.frombuffer(frame, dtype=np.uint8), cv2.IMREAD_COLOR
+                )
+                cv2.imshow("pioneer_camera_stream", camera_frame)
+            key = cv2.waitKey(1)
+            if key == 27:  # esc
+                print("esc pressed")
+                cv2.destroyAllWindows()
+                pioneer_mini.land()
+                break
+            elif key == ord("1"):
+                pioneer_mini.arm()
+            elif key == ord("2"):
+                pioneer_mini.disarm()
+            elif key == ord("3"):
+                time.sleep(2)
+                pioneer_mini.arm()
+                time.sleep(1)
+                pioneer_mini.takeoff()
+                time.sleep(2)
+            elif key == ord("4"):
+                time.sleep(2)
+                pioneer_mini.land()
+                time.sleep(2)
+            elif key == ord("w"):
+                ch_3 = min_v
+            elif key == ord("s"):
+                ch_3 = max_v
+            elif key == ord("a"):
+                ch_4 = min_v
+            elif key == ord("d"):
+                ch_4 = max_v
+            elif key == ord("q"):
+                ch_2 = 2000
+            elif key == ord("e"):
+                ch_2 = 1000
+            elif key == ord("i"):
+                ch_1 = 2000
+            elif key == ord("k"):
+                ch_1 = 1000
+
+            pioneer_mini.send_rc_channels(
+                channel_1=ch_1,
+                channel_2=ch_2,
+                channel_3=ch_3,
+                channel_4=ch_4,
+                channel_5=ch_5,
+            )
+            time.sleep(0.02)
+    finally:
+        time.sleep(1)
+        pioneer_mini.land()
+
+        pioneer_mini.close_connection()
+        del pioneer_mini
+            </code></pre>
+</div>
+<div class="osnvj">
+            <h1>Программа для проверки работоспособности дрона</h1>
+        </div>
+<div class="code-block">
+            <pre><code class="language-python">
+from pioneer_sdk import Pioneer, Camera
+import cv2
+import time
+
+if __name__ == "__main__":
+    print(
+        """
+    1 -- arm (завести моторы)
+    2 -- disarm (остановить моторы)
+    ESC -- выход
+        """
+    )
+
+    pioneer_mini = Pioneer()
+    camera = Camera()
+
+    try:
+        while True:
+            frame = camera.get_cv_frame()
+            if frame is not None:
+                cv2.imshow("pioneer_camera_stream", frame)
+
+            key = cv2.waitKey(1)
+            if key == 27:  # ESC
+                print("esc pressed")
+                cv2.destroyAllWindows()
+                pioneer_mini.disarm()
+                break
+            elif key == ord("1"):
+                pioneer_mini.arm()
+            elif key == ord("2"):
+                pioneer_mini.disarm()
+
+            time.sleep(0.02)
+
+    finally:
+        time.sleep(1)
+        pioneer_mini.disarm()
+        pioneer_mini.close_connection()
+        del pioneer_mini
+            </code></pre>
+</div>
+    </div>
+    <footer class="footer">
+        <div class="footer-column">
+            <h2>Контактные данные</h2>
+            <ul>
+                <li>mzakalyuzhnyy@inbox.ru</li>
+                <li>+7-952-518-34-42</li>
+            </ul>
+        </div>
+        <div class="footer-bottom">
+        </div>
+    </footer>
+</body>
+</html>
